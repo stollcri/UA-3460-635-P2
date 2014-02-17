@@ -11,8 +11,10 @@
 //the file type from which we are creating the object
 #define pgmBinary 0
 #define pgmASCII 1
-
+//max length for any given pixel, used for constructor
 #define MAX_ITEM_LENGTH 80
+//set to 0 for quiet operation, 1 to debug
+#define DBGPGM 0
 
 using namespace std;
 

@@ -34,15 +34,15 @@ pgm::pgm(const char * filename, int fileType) {
 		//we have our x, y and z, so now we know the size of the matrix we must make
 		imageMatrix = new unsigned char *[height]; //make Y rows
 		for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];
-		cout << "Image matrix: \n";
+		if (DBGPGM) cout << "Image matrix: \n";
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				inFile >> item;
 				tempValue = atoi(item);
 				imageMatrix[i][j] = (unsigned char) tempValue;
-				cout << (int) imageMatrix[i][j] << ' ';
+				if (DBGPGM) cout << (int) imageMatrix[i][j] << ' ';
 			}
-			cout << "\n";
+			if (DBGPGM) cout << "\n";
 		}
 		inFile.close();
 	}
@@ -53,7 +53,7 @@ pgm::pgm(const char * filename, int fileType) {
 		width = height = 0;
 		depth = (unsigned char) 0;
 	}
-	cout << "height " << height << " width " << width << " depth " << (int) depth << "\n";
+	if (DBGPGM) cout << "height " << height << " width " << width << " depth " << (int) depth << "\n";
 }
 
 /* toBinary outputs the object to a binary .pgm file
