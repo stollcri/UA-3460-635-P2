@@ -1,0 +1,1 @@
+[pgm | -unsigned char **imageMatrix; -unsigned char depth; -unsigned short width; -unsigned short height | +pgm(filename filetype); +int toBinary(filename); +int toASCII(filename)]
