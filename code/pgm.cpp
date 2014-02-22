@@ -62,12 +62,12 @@ pgm::pgm(const char * filename, int fileType) {
 */
 int pgm::toBinary(const char * filename) {
 	FILE* outFile;
-    outFile = fopen(filename, "wb");
+	outFile = fopen(filename, "wb");
 
-    // write header information
-    fwrite(&width, sizeof(width), 1, outFile);
-    fwrite(&height, sizeof(height), 1, outFile);
-    fwrite(&depth, sizeof(depth), 1, outFile);
+	// write header information
+	fwrite(&width, sizeof(width), 1, outFile);
+	fwrite(&height, sizeof(height), 1, outFile);
+	fwrite(&depth, sizeof(depth), 1, outFile);
 	
 	// write image data
 	unsigned char currentChar;
@@ -77,7 +77,7 @@ int pgm::toBinary(const char * filename) {
 			fwrite(&currentChar, sizeof(currentChar), 1, outFile);
 		}
 	}
-    fclose(outFile);
+	fclose(outFile);
 
 	return 0;
 }
