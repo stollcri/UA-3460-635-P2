@@ -48,6 +48,29 @@ pgm::pgm(const char * filename, int fileType) {
 		inFile.close();
 	}
 	else if (fileType == pgmBinary) {
+		FILE* inFile;
+		inFile = fopen(filename, "rb");
+
+		// read header infromation
+		fread(&width, sizeof(width), 1, inFile);
+		fread(&height, sizeof(height), 1, inFile);
+		fread(&depth, sizeof(depth), 1, inFile);
+
+		//we have our x, y and z, so now we know the size of the matrix we must make
+		imageMatrix = new unsigned char *[height]; //make Y rows
+		for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];
+		
+		// read image data
+		unsigned char currentChar;
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if (!feof(inFile)) {
+					fread(&currentChar, sizeof(currentChar), 1, inFile);
+					imageMatrix[i][j] = currentChar;
+				}
+			}
+		}
+		fclose(inFile);
 	}
 	else {
 		cerr << "Invalid file type provided to pgm class\n";
@@ -87,6 +110,26 @@ int pgm::toBinary(const char * filename) {
 	will be replaced with a watermark for our project
 */
 int pgm::toASCII(const char * filename) {
+	FILE* outFile;
+	outFile = fopen(filename, "w");
+
+	// write header information
+	fprintf(outFile, "P2\n");
+	fprintf(outFile, "# Created by Crouse and Stoll\n");
+	fprintf(outFile, "%d %d\n", width, height);
+	fprintf(outFile, "%d\n", depth);
+	
+	// write image data
+	unsigned char currentChar;
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			currentChar = imageMatrix[i][j];
+			fprintf(outFile, "%d ", currentChar);
+		}
+		fprintf(outFile, "\n");
+	}
+	fclose(outFile);
+
 	return 0;
 }
 
