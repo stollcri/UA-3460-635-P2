@@ -75,10 +75,7 @@ int pgm::toBinary(const char * filename) {
 		for (int j = 0; j < width; j++) {
 			currentChar = imageMatrix[i][j];
 			fwrite(&currentChar, sizeof(currentChar), 1, pFile);
-
-			cout << (int)currentChar << " ";
 		}
-		cout << "\n";
 	}
     fclose(pFile);
 
