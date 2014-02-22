@@ -1,4 +1,5 @@
 CC = c++
+CFLAGS = -I ./eigen/
 
 default: svd
 

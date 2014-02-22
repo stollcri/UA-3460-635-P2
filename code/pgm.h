@@ -28,6 +28,8 @@ public:
 	pgm(const char * filename, int fileType);
 	int toBinary(const char * filename);
 	int toASCII(const char * filename);
+	int generateSVDheader(const char *headerFileName);
+	int toSDVfiles(const char *headerFileName, const char *svdFileName);
 	~pgm();
 };
 

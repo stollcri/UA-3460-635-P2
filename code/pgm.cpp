@@ -8,6 +8,8 @@
 #include <fstream>
 #include <string>
 #include <stdio.h>
+#include <Eigen/Dense>
+#include <Eigen/SVD>
 
 using namespace std;
 
@@ -125,6 +127,68 @@ int pgm::toASCII(const char * filename) {
 		for (int j = 0; j < width; j++) {
 			currentChar = imageMatrix[i][j];
 			fprintf(outFile, "%d ", currentChar);
+		}
+		fprintf(outFile, "\n");
+	}
+	fclose(outFile);
+
+	return 0;
+}
+
+int pgm::generateSVDheader(const char *headerFileName) {
+	FILE* outFile;
+	outFile = fopen(headerFileName, "w");
+
+	// write header information
+	fprintf(outFile, "%d ", width);
+	fprintf(outFile, "%d ", height);
+	fprintf(outFile, "%d", depth);
+	fclose(outFile);
+
+	return 0;
+}
+
+int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
+	generateSVDheader(headerFileName);
+
+	Eigen::MatrixXd M(height, width);
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			M(i, j) = imageMatrix[i][j];
+		}
+	}
+
+	Eigen::JacobiSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	Eigen::MatrixXd U = svd.matrixU();
+	Eigen::MatrixXd S = svd.singularValues();
+	Eigen::MatrixXd V = svd.matrixV();
+	/*
+	cout << "===== M =====" << endl << M << endl;
+	cout << "===== U =====" << endl << U << endl;
+	cout << "===== S =====" << endl << S << endl;
+	cout << "===== V =====" << endl << V << endl;
+	*/
+
+	FILE* outFile;
+	outFile = fopen(svdFileName, "w");
+	// write the U matrix
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < height; j++) {
+			fprintf(outFile, "%f ", U(i, j));
+		}
+		fprintf(outFile, "\n");
+	}
+	
+	// write the S matrix
+	for (int i = 0; i < width; i++) {
+		fprintf(outFile, "%f ", S(i));
+	}
+	fprintf(outFile, "\n");
+
+	// write the V matrix
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < width; j++) {
+			fprintf(outFile, "%f ", V(i, j));
 		}
 		fprintf(outFile, "\n");
 	}

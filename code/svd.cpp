@@ -8,6 +8,8 @@
 #include <stdlib.h>
 const char * image_b = "image_b.pgm";
 const char * image2 = "image2.pgm";
+const char * headerFile = "header.txt";
+const char * svdFile = "SVD.txt";
 
 using namespace std;
 
@@ -28,6 +30,10 @@ int main(int argc, char ** argv) {
 	else if (atoi(argv[1]) == 3) {
 	}
 	else if (atoi(argv[1]) == 4) {
+	}
+	else if (atoi(argv[1]) == 5) {
+		image = new pgm(argv[2], pgmASCII);
+		image->toSDVfiles(headerFile, svdFile);
 	}
 	else {
 		rvalue = 1;
