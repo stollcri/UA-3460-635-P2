@@ -18,4 +18,12 @@ test:
 
 clean:
 	-rm *.o
+
 	-rm svd
+
+	-rm image_b.pgm
+	-rm image2.pgm
+	-rm header.txt
+	-rm SVD.txt
+	-rm image_b.pgm.SVD
+	-rm image_k.pgm
