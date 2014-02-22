@@ -61,23 +61,23 @@ pgm::pgm(const char * filename, int fileType) {
 	this file will NOT be readable by graphics editors
 */
 int pgm::toBinary(const char * filename) {
-	FILE* pFile;
-    pFile = fopen(filename, "wb");
+	FILE* outFile;
+    outFile = fopen(filename, "wb");
 
     // write header information
-    fwrite(&width, sizeof(width), 1, pFile);
-    fwrite(&height, sizeof(height), 1, pFile);
-    fwrite(&depth, sizeof(depth), 1, pFile);
+    fwrite(&width, sizeof(width), 1, outFile);
+    fwrite(&height, sizeof(height), 1, outFile);
+    fwrite(&depth, sizeof(depth), 1, outFile);
 	
 	// write image data
 	unsigned char currentChar;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			currentChar = imageMatrix[i][j];
-			fwrite(&currentChar, sizeof(currentChar), 1, pFile);
+			fwrite(&currentChar, sizeof(currentChar), 1, outFile);
 		}
 	}
-    fclose(pFile);
+    fclose(outFile);
 
 	return 0;
 }
