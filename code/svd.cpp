@@ -8,6 +8,8 @@
 #include <stdlib.h>
 const char * image_b = "image_b.pgm";
 const char * image2 = "image2.pgm";
+const char * image_k = "image_k.pgm";
+const char * image_svd  = "image_b.pgm.SVD";
 const char * headerFile = "header.txt";
 const char * svdFile = "SVD.txt";
 
@@ -28,7 +30,13 @@ int main(int argc, char ** argv) {
 		image->toASCII(image2);
 	}
 	else if (atoi(argv[1]) == 3) {
-		image = NULL;
+		if (argc < 5) {
+			rvalue=1;
+		}
+		else {
+			image = new pgm(argv[2], argv[3]);
+			image->toCompressedBinary(image_svd, atoi(argv[4]));
+		}
 	}
 	else if (atoi(argv[1]) == 4) {
 		image = NULL;

@@ -24,13 +24,14 @@ private:
 	unsigned char depth;
 	int generateSVDheader(const char *headerFileName);
 	int generateSVD(const char *filename);
-	int generatePGM(const char *filename);	
 	void pgmFromASCII(const char * filename);
 	void pgmFromBinary(const char * filename);
 public:
 	pgm(const char * filename, int fileType);
+	pgm(const char * headerFile, const char * svdFile);
 	int toBinary(const char * filename);
 	int toASCII(const char * filename);
+	int toCompressedBinary(const char * filename, int k);
 	int toSVDfiles(const char *headerFileName, const char *svdFileName);
 	~pgm();
 };

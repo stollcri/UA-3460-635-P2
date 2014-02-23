@@ -83,6 +83,78 @@ void pgm::pgmFromBinary(const char* filename) {
 	}
 }
 
+int pgm:: toCompressedBinary(const char * filename, int thisK) {
+	//TODO: implement the following:
+	//Recreate SVD of this image
+	//use this with the K-value passed to this method
+	//to create a compressed matrix
+	//output this matrix to filename
+	
+	/*
+	 * =================
+	 * EXPERIMENTAL CODE
+	 */
+	Eigen::MatrixXd M(height, width);
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			M(i, j) = imageMatrix[i][j];
+		}
+	}
+
+	Eigen::JacobiSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	Eigen::MatrixXd U = svd.matrixU();
+	Eigen::MatrixXd S = svd.singularValues();
+	Eigen::MatrixXd V = svd.matrixV();
+	FILE* outFile;
+
+	outFile = fopen("image_k.pgm", "w");
+	fprintf(outFile, "P2\n");
+	fprintf(outFile, "# Created by Crouse and Stoll\n");
+	fprintf(outFile, "%d %d\n", width, height);
+	fprintf(outFile, "%d\n", depth);
+
+	Eigen::MatrixXd S2(height, width);
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			if (i==j) {
+				S2(i, j) = S(i);
+			} else {
+				S2(i, j) = 0;
+			}
+		}
+	}
+	M = U * S2 * V.transpose(); // <= this should reverse the SVD
+
+	int k=0, kmax=S.size();
+	//cout << "U size " << U.size() << " and V size " << V.size() << " and M size "  << M.size() << endl;
+	//cout << S2 << endl;
+	int currentVal;
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			
+			//currentVal = abs( U(i, j) * S(k) * V(i, j) );
+			currentVal = M(i, j);
+
+			//cout << currentVal << " ";
+			fprintf(outFile, "%d ", currentVal);
+
+			++k;
+			if (k >= kmax) {
+				k = 0;
+			}
+		}
+		//cout << endl;
+		fprintf(outFile, "\n");
+	}
+	fclose(outFile);
+
+	/*
+	 * END EXPERIMENTAL CODE
+	 * =====================
+	 */
+	return 0;
+}
+
 /* pgm constructor
 	creates a pgm objecct from a pgm file, either binary or ASCII
 	fileType is expecting pgmBinary or pgmASCII, which are defined in the header
@@ -98,8 +170,70 @@ pgm::pgm(const char * filename, int fileType) {
 		cerr << "Invalid file type provided to pgm class\n";
 		width = height = 0;
 		depth = (unsigned char) 0;
+		imageMatrix= NULL;
 	}
 	if (DBGPGM) cout << "height " << height << " width " << width << " depth " << (int) depth << "\n";
+}
+
+/*	pgm constructor (from SVD file)
+	generates a pgm object from a header and svd file
+*/
+pgm::pgm(const char * headerFile, const char * svdFile) {
+	int tempValue;
+	double tempDouble;
+	ifstream header(headerFile), svd(svdFile);
+	if (!header.is_open() || !svd.is_open()) {
+		cerr << "Couldn't open header or svd file\n";
+		width = height = 0;
+		depth = (unsigned char) 0;
+		imageMatrix= NULL;		
+	}
+	else {
+		header >> width >> height >> tempValue;
+		depth = (unsigned char) tempValue;
+		header.close();
+		Eigen::MatrixXd M(height, width);
+		Eigen::MatrixXd U(height, height);
+		Eigen::MatrixXd S(height, width);
+		Eigen::MatrixXd V(width, width);
+		//pull in U
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < height; j++) {
+				svd >> tempDouble;
+				U(i, j) = tempDouble;
+			}
+		}
+		//now S
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if (i==j) {
+					svd >> tempDouble;
+					
+					S(i, j) = tempDouble;
+				}
+				else {
+					S(i, j) = 0;
+				}
+			}
+		}
+		//finally V
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < width; j++) {
+				svd >> tempDouble;
+				V(i, j) = tempDouble;
+			}
+		}
+		svd.close();
+		M = U * S * V.transpose(); // <= this should reverse the SVD
+		//generate imageMatrix
+		imageMatrix = new unsigned char *[height];
+		for (int i = 0; i < height; i++){
+			imageMatrix[i] = new unsigned char[width];
+			for (int j = 0; j < width; j++) {
+				imageMatrix[i][j] = (unsigned char) M(i, j); 
+			}
+		}
+	}
 }
 
 /* toBinary outputs the object to a binary .pgm file
@@ -169,16 +303,6 @@ int pgm::generateSVDheader(const char *headerFileName) {
 }
 
 int pgm::generateSVD(const char *filename) {
-	return 0;
-}
-
-int pgm::generatePGM(const char *filename) {
-	return 0;
-}
-
-int pgm::toSVDfiles(const char *headerFileName, const char *svdFileName) {
-	generateSVDheader(headerFileName);
-
 	Eigen::MatrixXd M(height, width);
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
@@ -190,15 +314,8 @@ int pgm::toSVDfiles(const char *headerFileName, const char *svdFileName) {
 	Eigen::MatrixXd U = svd.matrixU();
 	Eigen::MatrixXd S = svd.singularValues();
 	Eigen::MatrixXd V = svd.matrixV();
-	
-	//cout << "===== M =====" << endl << M << endl;
-	//cout << "===== U =====" << endl << U << endl;
-	//cout << "===== S =====" << endl << S << endl;
-	//cout << "===== V =====" << endl << V << endl;
-	
-
 	FILE* outFile;
-	outFile = fopen(svdFileName, "w");
+	outFile = fopen(filename, "w");
 	// write the U matrix
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < height; j++) {
@@ -221,59 +338,12 @@ int pgm::toSVDfiles(const char *headerFileName, const char *svdFileName) {
 		fprintf(outFile, "\n");
 	}
 	fclose(outFile);
+	return 0;
+}
 
-
-	/*
-	 * =================
-	 * EXPERIMENTAL CODE
-	 */
-
-	outFile = fopen("image_k.pgm", "w");
-	fprintf(outFile, "P2\n");
-	fprintf(outFile, "# Created by Crouse and Stoll\n");
-	fprintf(outFile, "%d %d\n", width, height);
-	fprintf(outFile, "%d\n", depth);
-
-	Eigen::MatrixXd S2(height, width);
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			if (i==j) {
-				S2(i, j) = S(i);
-			} else {
-				S2(i, j) = 0;
-			}
-		}
-	}
-	M = U * S2 * V.transpose(); // <= this should reverse the SVD
-
-	int k=0, kmax=S.size();
-	//cout << "U size " << U.size() << " and V size " << V.size() << " and M size "  << M.size() << endl;
-	//cout << S2 << endl;
-	int currentVal;
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			
-			//currentVal = abs( U(i, j) * S(k) * V(i, j) );
-			currentVal = M(i, j);
-
-			//cout << currentVal << " ";
-			fprintf(outFile, "%d ", currentVal);
-
-			++k;
-			if (k >= kmax) {
-				k = 0;
-			}
-		}
-		//cout << endl;
-		fprintf(outFile, "\n");
-	}
-	fclose(outFile);
-
-	/*
-	 * END EXPERIMENTAL CODE
-	 * =====================
-	 */
-
+int pgm::toSVDfiles(const char *headerFileName, const char *svdFileName) {
+	generateSVDheader(headerFileName);
+	generateSVD(svdFileName);
 	return 0;
 }
 
