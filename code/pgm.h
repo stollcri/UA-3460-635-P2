@@ -26,6 +26,7 @@ private:
 	int generateSVD(const char *filename);
 	void pgmFromASCII(const char * filename);
 	void pgmFromBinary(const char * filename);
+	void failedConstructor();
 public:
 	pgm(const char * filename, int fileType);
 	pgm(const char * headerFile, const char * svdFile);

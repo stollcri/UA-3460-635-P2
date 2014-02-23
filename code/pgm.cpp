@@ -20,10 +20,8 @@ void pgm::pgmFromASCII(const char * filename) {
 	ifstream inFile(filename);
 	string in;
 	if (!inFile.is_open()) {
-		height = width = 0;
-		depth = (unsigned char) 0;
-		imageMatrix = NULL;
 		cerr << "cannot open file for reading\n";
+		failedConstructor();
 	}
 	else {
 		getline(inFile, in, '\n'); //ignore first "P2"
@@ -56,10 +54,8 @@ void pgm::pgmFromBinary(const char* filename) {
 	FILE* inFile;
 	inFile = fopen(filename, "rb");
 	if (inFile == NULL) {
-		height = width = 0;
-		depth = (unsigned char) 0;
-		imageMatrix = NULL;
 		cerr << "cannot open file for reading\n";
+		failedConstructor();
 	}
 	else {
 		// read header infromation
@@ -155,6 +151,13 @@ int pgm:: toCompressedBinary(const char * filename, int thisK) {
 	return 0;
 }
 
+//failed constructor, to be used if bad filenames were passed to the "real" constructors
+void pgm::failedConstructor() {
+	width = height = 0;
+	depth = (unsigned char) 0;
+	imageMatrix= NULL;
+}
+
 /* pgm constructor
 	creates a pgm objecct from a pgm file, either binary or ASCII
 	fileType is expecting pgmBinary or pgmASCII, which are defined in the header
@@ -168,9 +171,7 @@ pgm::pgm(const char * filename, int fileType) {
 	}
 	else {
 		cerr << "Invalid file type provided to pgm class\n";
-		width = height = 0;
-		depth = (unsigned char) 0;
-		imageMatrix= NULL;
+		failedConstructor();
 	}
 	if (DBGPGM) cout << "height " << height << " width " << width << " depth " << (int) depth << "\n";
 }
@@ -184,9 +185,7 @@ pgm::pgm(const char * headerFile, const char * svdFile) {
 	ifstream header(headerFile), svd(svdFile);
 	if (!header.is_open() || !svd.is_open()) {
 		cerr << "Couldn't open header or svd file\n";
-		width = height = 0;
-		depth = (unsigned char) 0;
-		imageMatrix= NULL;		
+		failedConstructor();	
 	}
 	else {
 		header >> width >> height >> tempValue;
