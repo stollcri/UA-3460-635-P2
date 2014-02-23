@@ -13,66 +13,74 @@
 
 using namespace std;
 
+/*	helper method for pgm constructor
+	creates a pgm object from an ASCII (normal) pgm file
+*/
+void pgm::pgmFromASCII(const char * filename) {
+	ifstream inFile(filename);
+	string in;
+	char item[MAX_ITEM_LENGTH];
+	int tempValue;
+	//TODO: check to make sure file is well-formed and opened properly
+	getline(inFile, in, '\n'); //ignore first "P2"
+	getline(inFile, in, '\n'); //get second line
+	while (in[0] == '#') getline(inFile, in); //get any further comments
+	//we should now have a line with two ints..
+	readTwoShorts(in, &width, &height);
+	getline(inFile, in, '\n'); //get the depth line
+	readOneChar(in, &depth);
+	//we have our x, y and z, so now we know the size of the matrix we must make
+	imageMatrix = new unsigned char *[height]; //make Y rows
+	for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];
+	if (DBGPGM) cout << "Image matrix: \n";
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			inFile >> item;
+			tempValue = atoi(item);
+			imageMatrix[i][j] = (unsigned char) tempValue;
+			if (DBGPGM) cout << (int) imageMatrix[i][j] << ' ';
+		}
+		if (DBGPGM) cout << "\n";
+	}
+	inFile.close();
+}
 
+/*	helper method for pgm constructor
+	creates a pgm object from a binary pgm file
+*/
+void pgm::pgmFromBinary(const char* filename) {
+	FILE* inFile;
+	inFile = fopen(filename, "rb");
+	// read header infromation
+	fread(&width, sizeof(width), 1, inFile);
+	fread(&height, sizeof(height), 1, inFile);
+	fread(&depth, sizeof(depth), 1, inFile);
+	//we have our x, y and z, so now we know the size of the matrix we must make
+	imageMatrix = new unsigned char *[height]; //make Y rows
+	for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];	
+	// read image data
+	unsigned char currentChar;
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			if (!feof(inFile)) {
+				fread(&currentChar, sizeof(currentChar), 1, inFile);
+				imageMatrix[i][j] = currentChar;
+			}
+		}
+	}
+	fclose(inFile);	
+}
 
 /* pgm constructor
 	creates a pgm objecct from a pgm file, either binary or ASCII
 	fileType is expecting pgmBinary or pgmASCII, which are defined in the header
 */
-//TODO: break two types into helper private methods
 pgm::pgm(const char * filename, int fileType) {
-	ifstream inFile(filename);
-	string in;
-	char item[MAX_ITEM_LENGTH];
-	int tempValue;
 	if (fileType == pgmASCII) {
-		//TODO: check to make sure file is well-formed and opened properly
-		getline(inFile, in, '\n'); //ignore first "P2"
-		getline(inFile, in, '\n'); //get second line
-		while (in[0] == '#') getline(inFile, in); //get any further comments
-		//we should now have a line with two ints..
-		readTwoShorts(in, &width, &height);
-		getline(inFile, in, '\n'); //get the depth line
-		readOneChar(in, &depth);
-		//we have our x, y and z, so now we know the size of the matrix we must make
-		imageMatrix = new unsigned char *[height]; //make Y rows
-		for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];
-		if (DBGPGM) cout << "Image matrix: \n";
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				inFile >> item;
-				tempValue = atoi(item);
-				imageMatrix[i][j] = (unsigned char) tempValue;
-				if (DBGPGM) cout << (int) imageMatrix[i][j] << ' ';
-			}
-			if (DBGPGM) cout << "\n";
-		}
-		inFile.close();
+		pgmFromASCII(filename);
 	}
 	else if (fileType == pgmBinary) {
-		FILE* inFile;
-		inFile = fopen(filename, "rb");
-
-		// read header infromation
-		fread(&width, sizeof(width), 1, inFile);
-		fread(&height, sizeof(height), 1, inFile);
-		fread(&depth, sizeof(depth), 1, inFile);
-
-		//we have our x, y and z, so now we know the size of the matrix we must make
-		imageMatrix = new unsigned char *[height]; //make Y rows
-		for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];
-		
-		// read image data
-		unsigned char currentChar;
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				if (!feof(inFile)) {
-					fread(&currentChar, sizeof(currentChar), 1, inFile);
-					imageMatrix[i][j] = currentChar;
-				}
-			}
-		}
-		fclose(inFile);
+		pgmFromBinary(filename);
 	}
 	else {
 		cerr << "Invalid file type provided to pgm class\n";
