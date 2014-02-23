@@ -203,18 +203,36 @@ int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 	fclose(outFile);
 
 
+	/*
+	 * =================
+	 * EXPERIMENTAL CODE
+	 */
+
 	outFile = fopen("image_k.pgm", "w");
 	fprintf(outFile, "P2\n");
 	fprintf(outFile, "# Created by Crouse and Stoll\n");
 	fprintf(outFile, "%d %d\n", width, height);
 	fprintf(outFile, "%d\n", depth);
 
-	int k=0, kmax=width;
+	Eigen::MatrixXd S2(height, width);
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			if (i==j) {
+				S2(i, j) = S(i);
+			} else {
+				S2(i, j) = 0;
+			}
+		}
+	}
+	M = U * S2 * V; // <= this should reverse the SVD
+
+	int k=0, kmax=S.size();
 	int currentVal;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			
-			//currentVal = abs( U(k, i) * S(k) * V(j, k) );
+			//currentVal = abs( U(i, j) * S(k) * V(i, j) );
+			currentVal = M(i, j);
 
 			//cout << currentVal << " ";
 			fprintf(outFile, "%d ", currentVal);
@@ -229,6 +247,10 @@ int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 	}
 	fclose(outFile);
 
+	/*
+	 * END EXPERIMENTAL CODE
+	 * =====================
+	 */
 
 	return 0;
 }
