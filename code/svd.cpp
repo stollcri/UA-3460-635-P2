@@ -28,8 +28,10 @@ int main(int argc, char ** argv) {
 		image->toASCII(image2);
 	}
 	else if (atoi(argv[1]) == 3) {
+		image = NULL;
 	}
 	else if (atoi(argv[1]) == 4) {
+		image = NULL;
 	}
 	else if (atoi(argv[1]) == 5) {
 		image = new pgm(argv[2], pgmASCII);
