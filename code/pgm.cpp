@@ -98,20 +98,15 @@ int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	fwrite(&depth, sizeof(depth), 1, outFile);
 	fwrite(&k, sizeof(k), 1, outFile);
 	//now we store the shortened U.
-	cout << k << endl;
-	cout << sizeof(double) << endl;
-	cout << U.size() << endl;
 	for (int i = 0; i < k; i++) { //first k rows of U
 		for (int j = 0; j < height; j++) {
 			fwrite(&(U(i, j)), sizeof(double), 1, outFile);
 		}
 	}
-	cout << S.size() << endl;
 	//next we store S
 	for (int i = 0; i < k; i++) { //first k S-values
 		fwrite(&(S(i)), sizeof(double), 1, outFile);
 	}
-	cout << V.size() << endl;
 	//finally shortened V
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < k; j++) { //first k columns
