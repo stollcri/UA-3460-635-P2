@@ -207,8 +207,10 @@ int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 	fprintf(outFile, "P2\n");
 	fprintf(outFile, "# Created by Crouse and Stoll\n");
 	fprintf(outFile, "%d %d\n", width, height);
+	fprintf(outFile, "%d\n", depth);
 
 	int k=0, kmax=width;
+	int currentVal;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			
