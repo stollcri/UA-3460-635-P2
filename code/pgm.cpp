@@ -2,7 +2,6 @@
 	Implementation for the pgm class
 	Created by Michael Crouse, 2/16/14
 */
-#include "half.hpp"
 #include "pgm.h"
 #include <stdlib.h>
 #include <iostream>
@@ -13,7 +12,6 @@
 #include <Eigen/SVD>
 
 using namespace std;
-using half_float::half;
 
 /*	helper method for pgm constructor
 	creates a pgm object from an ASCII (normal) pgm file
@@ -90,7 +88,7 @@ void pgm::pgmFromCompressed(const char* filename) {
 	}
 	else {
 		unsigned short k;
-		half tempHalf;
+		float tempHalf;
 		// read header infromation
 		fread(&width, sizeof(width), 1, inFile);
 		fread(&height, sizeof(height), 1, inFile);
@@ -106,7 +104,7 @@ void pgm::pgmFromCompressed(const char* filename) {
 		//read in U first..		
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < k; j++) {
-				fread(&tempHalf, sizeof(half), 1, inFile);
+				fread(&tempHalf, sizeof(float), 1, inFile);
 				U(i, j) = tempHalf;
 			}
 		}
@@ -114,7 +112,7 @@ void pgm::pgmFromCompressed(const char* filename) {
 		for (int i = 0; i < k; i++) {
 			for (int j = 0; j < k; j++) {
 				if (i==j) {
-					fread(&tempHalf, sizeof(half), 1, inFile);
+					fread(&tempHalf, sizeof(float), 1, inFile);
 					S(i, j) = tempHalf;
 				}
 				else {
@@ -125,14 +123,19 @@ void pgm::pgmFromCompressed(const char* filename) {
 		//finally V
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < k; j++) {
-				fread(&tempHalf, sizeof(half), 1, inFile);
+				fread(&tempHalf, sizeof(float), 1, inFile);
 				V(i, j) = tempHalf;
 			}
 		}
 		M = U * S * V.transpose();
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				imageMatrix[i][j] = (unsigned char) M(i, j);
+				if (M(i,j) > 255) {
+					imageMatrix[i][j] = (unsigned char) 255;
+				}
+				else {
+					imageMatrix[i][j] = (unsigned char) M(i, j);
+				}
 			}
 		}
 		fclose(inFile);
@@ -141,7 +144,7 @@ void pgm::pgmFromCompressed(const char* filename) {
 
 int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	Eigen::MatrixXd M(height, width);
-	half tempHalf;
+	float tempHalf;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			M(i, j) = imageMatrix[i][j];
@@ -161,20 +164,20 @@ int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	//now we store the shortened U.
 	for (int i = 0; i < height; i++) { //first k rows of U
 		for (int j = 0; j < k; j++) {
-			tempHalf = (half) U(i, j);
-			fwrite(&tempHalf, sizeof(half), 1, outFile);
+			tempHalf = (float) U(i, j);
+			fwrite(&tempHalf, sizeof(float), 1, outFile);
 		}
 	}
 	//next we store S
 	for (int i = 0; i < k; i++) { //first k S-values
-			tempHalf = (half) S(i);
-			fwrite(&tempHalf, sizeof(half), 1, outFile);
+			tempHalf = (float) S(i);
+			fwrite(&tempHalf, sizeof(float), 1, outFile);
 	}
 	//finally shortened V
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < k; j++) { //first k columns of V.transpose(), first k rows of V
-			tempHalf = (half) V(i, j);
-			fwrite(&tempHalf, sizeof(half), 1, outFile);
+			tempHalf = (float) V(i, j);
+			fwrite(&tempHalf, sizeof(float), 1, outFile);
 		}
 	}
 	fclose(outFile);
@@ -240,7 +243,6 @@ pgm::pgm(const char * headerFile, const char * svdFile) {
 			for (int j = 0; j < width; j++) {
 				if (i==j) {
 					svd >> tempDouble;
-					
 					S(i, j) = tempDouble;
 				}
 				else {
