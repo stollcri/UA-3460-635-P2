@@ -244,9 +244,11 @@ int pgm::toSVDfiles(const char *headerFileName, const char *svdFileName) {
 			}
 		}
 	}
-	M = U * S2 * V; // <= this should reverse the SVD
+	M = U * S2 * V.transpose(); // <= this should reverse the SVD
 
 	int k=0, kmax=S.size();
+	//cout << "U size " << U.size() << " and V size " << V.size() << " and M size "  << M.size() << endl;
+	//cout << S2 << endl;
 	int currentVal;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
