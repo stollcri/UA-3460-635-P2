@@ -24,11 +24,13 @@ private:
 	unsigned short width;
 	unsigned short height;
 	unsigned char depth;
+	int generateSVDheader(const char *headerFileName);
+	int generateSVD(const char *filename);
+	int generatePGM(const char *filename);
 public:
 	pgm(const char * filename, int fileType);
 	int toBinary(const char * filename);
 	int toASCII(const char * filename);
-	int generateSVDheader(const char *headerFileName);
 	int toSDVfiles(const char *headerFileName, const char *svdFileName);
 	~pgm();
 };

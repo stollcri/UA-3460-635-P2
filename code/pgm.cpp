@@ -148,6 +148,14 @@ int pgm::generateSVDheader(const char *headerFileName) {
 	return 0;
 }
 
+int pgm::generateSVD(const char *filename) {
+	return 0;
+}
+
+int pgm::generatePGM(const char *filename) {
+	return 0;
+}
+
 int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 	generateSVDheader(headerFileName);
 
@@ -162,12 +170,12 @@ int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 	Eigen::MatrixXd U = svd.matrixU();
 	Eigen::MatrixXd S = svd.singularValues();
 	Eigen::MatrixXd V = svd.matrixV();
-	/*
-	cout << "===== M =====" << endl << M << endl;
-	cout << "===== U =====" << endl << U << endl;
-	cout << "===== S =====" << endl << S << endl;
-	cout << "===== V =====" << endl << V << endl;
-	*/
+	
+	//cout << "===== M =====" << endl << M << endl;
+	//cout << "===== U =====" << endl << U << endl;
+	//cout << "===== S =====" << endl << S << endl;
+	//cout << "===== V =====" << endl << V << endl;
+	
 
 	FILE* outFile;
 	outFile = fopen(svdFileName, "w");
