@@ -156,7 +156,7 @@ int pgm::generatePGM(const char *filename) {
 	return 0;
 }
 
-int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
+int pgm::toSVDfiles(const char *headerFileName, const char *svdFileName) {
 	generateSVDheader(headerFileName);
 
 	Eigen::MatrixXd M(height, width);

@@ -33,7 +33,7 @@ int main(int argc, char ** argv) {
 	}
 	else if (atoi(argv[1]) == 5) {
 		image = new pgm(argv[2], pgmASCII);
-		image->toSDVfiles(headerFile, svdFile);
+		image->toSVDfiles(headerFile, svdFile);
 	}
 	else {
 		rvalue = 1;
