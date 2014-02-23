@@ -42,5 +42,6 @@ int main(int argc, char ** argv) {
 	if (rvalue == 1) {
 		cout << "Usage: " << argv[0] << " option filename svd? k?\n";
 	}
+	if (image != NULL) delete image;
 	return rvalue;
 }

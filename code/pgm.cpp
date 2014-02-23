@@ -257,7 +257,12 @@ int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 
 //destructor - clears up the image matrix safely
 pgm::~pgm() {
-	
+	if (imageMatrix != NULL) {
+		for (int i = 0; i < height; i++) {
+			delete imageMatrix[i];
+		}
+		delete imageMatrix;
+	}
 }
 
 /* Get two space seperated numbers from the begining of a string of characters
