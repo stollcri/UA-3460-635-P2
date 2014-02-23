@@ -202,6 +202,32 @@ int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 	}
 	fclose(outFile);
 
+
+	outFile = fopen("image_k.pgm", "w");
+	fprintf(outFile, "P2\n");
+	fprintf(outFile, "# Created by Crouse and Stoll\n");
+	fprintf(outFile, "%d %d\n", width, height);
+
+	int k=0, kmax=width;
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			
+			//currentVal = abs( U(k, i) * S(k) * V(j, k) );
+
+			//cout << currentVal << " ";
+			fprintf(outFile, "%d ", currentVal);
+
+			++k;
+			if (k >= kmax) {
+				k = 0;
+			}
+		}
+		//cout << endl;
+		fprintf(outFile, "\n");
+	}
+	fclose(outFile);
+
+
 	return 0;
 }
 
