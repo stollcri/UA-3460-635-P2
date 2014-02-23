@@ -11,6 +11,7 @@
 //the file type from which we are creating the object
 #define pgmBinary 0
 #define pgmASCII 1
+#define pgmCompressed 2
 //set to 0 for quiet operation, 1 to debug
 #define DBGPGM 0
 
@@ -26,6 +27,7 @@ private:
 	int generateSVD(const char *filename);
 	void pgmFromASCII(const char * filename);
 	void pgmFromBinary(const char * filename);
+	void pgmFromCompressed(const char * filename);
 	void failedConstructor();
 public:
 	pgm(const char * filename, int fileType);

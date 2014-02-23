@@ -39,7 +39,8 @@ int main(int argc, char ** argv) {
 		}
 	}
 	else if (atoi(argv[1]) == 4) {
-		image = NULL;
+		image = new pgm(argv[2], pgmCompressed);
+		image->toASCII(image_k);
 	}
 	else if (atoi(argv[1]) == 5) {
 		image = new pgm(argv[2], pgmASCII);

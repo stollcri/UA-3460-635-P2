@@ -79,6 +79,60 @@ void pgm::pgmFromBinary(const char* filename) {
 	}
 }
 
+void pgm::pgmFromCompressed(const char* filename) {
+	FILE* inFile;
+	inFile = fopen(filename, "rb");
+	if (inFile == NULL) {
+		cerr << "cannot open file for reading\n";
+		failedConstructor();
+	}
+	else {
+		unsigned short k;
+		// read header infromation
+		fread(&width, sizeof(width), 1, inFile);
+		fread(&height, sizeof(height), 1, inFile);
+		fread(&depth, sizeof(depth), 1, inFile);
+		fread(&k, sizeof(k), 1, inFile);
+		//we have our x, y and z, so now we know the size of the matrix we must make
+		imageMatrix = new unsigned char *[height]; //make Y rows
+		for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];	
+		Eigen::MatrixXd M(height, width);
+		Eigen::MatrixXd U(height, k);
+		Eigen::MatrixXd S(k, k);
+		Eigen::MatrixXd V(width, k);
+		//read in U first..		
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < k; j++) {
+				fread(&(U(i,j)), sizeof(double), 1, inFile);
+			}
+		}
+		//then S..
+		for (int i = 0; i < k; i++) {
+			for (int j = 0; j < k; j++) {
+				if (i==j) {
+					fread(&(S(i, j)), sizeof(double), 1, inFile);
+				}
+				else {
+					S(i, j) = 0;
+				}
+			}
+		}
+		//finally V
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < k; j++) {
+				fread(&(V(i,j)), sizeof(double), 1, inFile);
+			}
+		}
+		M = U * S * V.transpose();
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				imageMatrix[i][j] = (unsigned char) M(i, j);
+			}
+		}
+		fclose(inFile);
+	}
+}
+
 int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	Eigen::MatrixXd M(height, width);
 	for (int i = 0; i < height; i++) {
@@ -98,8 +152,8 @@ int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	fwrite(&depth, sizeof(depth), 1, outFile);
 	fwrite(&k, sizeof(k), 1, outFile);
 	//now we store the shortened U.
-	for (int i = 0; i < k; i++) { //first k rows of U
-		for (int j = 0; j < height; j++) {
+	for (int i = 0; i < height; i++) { //first k rows of U
+		for (int j = 0; j < k; j++) {
 			fwrite(&(U(i, j)), sizeof(double), 1, outFile);
 		}
 	}
@@ -109,7 +163,7 @@ int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	}
 	//finally shortened V
 	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < k; j++) { //first k columns
+		for (int j = 0; j < k; j++) { //first k columns of V.transpose(), first k rows of V
 			fwrite(&(V(i, j)), sizeof(double), 1, outFile);
 		}
 	}
@@ -134,6 +188,9 @@ pgm::pgm(const char * filename, int fileType) {
 	}
 	else if (fileType == pgmBinary) {
 		pgmFromBinary(filename);
+	}
+	else if (fileType == pgmCompressed) {
+		pgmFromCompressed(filename);
 	}
 	else {
 		cerr << "Invalid file type provided to pgm class\n";
