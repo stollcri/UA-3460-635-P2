@@ -35,7 +35,7 @@ int main(int argc, char ** argv) {
 		}
 		else {
 			image = new pgm(argv[2], argv[3]);
-			image->toCompressedBinary(image_svd, atoi(argv[4]));
+			image->toCompressedBinary(image_svd, (unsigned short) atoi(argv[4]));
 		}
 	}
 	else if (atoi(argv[1]) == 4) {

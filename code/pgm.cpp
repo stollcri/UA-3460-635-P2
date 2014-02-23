@@ -79,75 +79,46 @@ void pgm::pgmFromBinary(const char* filename) {
 	}
 }
 
-int pgm:: toCompressedBinary(const char * filename, int thisK) {
-	//TODO: implement the following:
-	//Recreate SVD of this image
-	//use this with the K-value passed to this method
-	//to create a compressed matrix
-	//output this matrix to filename
-	
-	/*
-	 * =================
-	 * EXPERIMENTAL CODE
-	 */
+int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	Eigen::MatrixXd M(height, width);
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			M(i, j) = imageMatrix[i][j];
 		}
 	}
-
 	Eigen::JacobiSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeFullU | Eigen::ComputeFullV);
 	Eigen::MatrixXd U = svd.matrixU();
 	Eigen::MatrixXd S = svd.singularValues();
 	Eigen::MatrixXd V = svd.matrixV();
-	FILE* outFile;
-
-	outFile = fopen("image_k.pgm", "w");
-	fprintf(outFile, "P2\n");
-	fprintf(outFile, "# Created by Crouse and Stoll\n");
-	fprintf(outFile, "%d %d\n", width, height);
-	fprintf(outFile, "%d\n", depth);
-
-	Eigen::MatrixXd S2(height, width);
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			if (i==j) {
-				S2(i, j) = S(i);
-			} else {
-				S2(i, j) = 0;
-			}
+	//TODO: make sure file opens for writing
+	FILE * outFile = fopen(filename, "wb");
+	//first write in the header.  Note that we need K, unlike an uncompressed binary, to unpack
+	fwrite(&width, sizeof(width), 1, outFile);
+	fwrite(&height, sizeof(height), 1, outFile);
+	fwrite(&depth, sizeof(depth), 1, outFile);
+	fwrite(&k, sizeof(k), 1, outFile);
+	//now we store the shortened U.
+	cout << k << endl;
+	cout << sizeof(double) << endl;
+	cout << U.size() << endl;
+	for (int i = 0; i < k; i++) { //first k rows of U
+		for (int j = 0; j < height; j++) {
+			fwrite(&(U(i, j)), sizeof(double), 1, outFile);
 		}
 	}
-	M = U * S2 * V.transpose(); // <= this should reverse the SVD
-
-	int k=0, kmax=S.size();
-	//cout << "U size " << U.size() << " and V size " << V.size() << " and M size "  << M.size() << endl;
-	//cout << S2 << endl;
-	int currentVal;
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			
-			//currentVal = abs( U(i, j) * S(k) * V(i, j) );
-			currentVal = M(i, j);
-
-			//cout << currentVal << " ";
-			fprintf(outFile, "%d ", currentVal);
-
-			++k;
-			if (k >= kmax) {
-				k = 0;
-			}
+	cout << S.size() << endl;
+	//next we store S
+	for (int i = 0; i < k; i++) { //first k S-values
+		fwrite(&(S(i)), sizeof(double), 1, outFile);
+	}
+	cout << V.size() << endl;
+	//finally shortened V
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < k; j++) { //first k columns
+			fwrite(&(V(i, j)), sizeof(double), 1, outFile);
 		}
-		//cout << endl;
-		fprintf(outFile, "\n");
 	}
 	fclose(outFile);
-
-	/*
-	 * END EXPERIMENTAL CODE
-	 * =====================
-	 */
 	return 0;
 }
 

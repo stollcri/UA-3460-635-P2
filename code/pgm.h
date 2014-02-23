@@ -32,7 +32,7 @@ public:
 	pgm(const char * headerFile, const char * svdFile);
 	int toBinary(const char * filename);
 	int toASCII(const char * filename);
-	int toCompressedBinary(const char * filename, int k);
+	int toCompressedBinary(const char * filename, unsigned short k);
 	int toSVDfiles(const char *headerFileName, const char *svdFileName);
 	~pgm();
 };
