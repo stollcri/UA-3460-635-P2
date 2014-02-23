@@ -188,7 +188,7 @@ int pgm::toSDVfiles(const char *headerFileName, const char *svdFileName) {
 	}
 	
 	// write the S matrix
-	for (int i = 0; i < width; i++) {
+	for (int i = 0; i < S.size(); i++) {
 		fprintf(outFile, "%f ", S(i));
 	}
 	fprintf(outFile, "\n");
