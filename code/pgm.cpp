@@ -19,30 +19,34 @@ using namespace std;
 void pgm::pgmFromASCII(const char * filename) {
 	ifstream inFile(filename);
 	string in;
-	char item[MAX_ITEM_LENGTH];
-	int tempValue;
-	//TODO: check to make sure file is well-formed and opened properly
-	getline(inFile, in, '\n'); //ignore first "P2"
-	getline(inFile, in, '\n'); //get second line
-	while (in[0] == '#') getline(inFile, in); //get any further comments
-	//we should now have a line with two ints..
-	readTwoShorts(in, &width, &height);
-	getline(inFile, in, '\n'); //get the depth line
-	readOneChar(in, &depth);
-	//we have our x, y and z, so now we know the size of the matrix we must make
-	imageMatrix = new unsigned char *[height]; //make Y rows
-	for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];
-	if (DBGPGM) cout << "Image matrix: \n";
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			inFile >> item;
-			tempValue = atoi(item);
-			imageMatrix[i][j] = (unsigned char) tempValue;
-			if (DBGPGM) cout << (int) imageMatrix[i][j] << ' ';
-		}
-		if (DBGPGM) cout << "\n";
+	if (!inFile.is_open()) {
+		height = width = 0;
+		depth = (unsigned char) 0;
+		imageMatrix = NULL;
+		cerr << "cannot open file for reading\n";
 	}
-	inFile.close();
+	else {
+		getline(inFile, in, '\n'); //ignore first "P2"
+		getline(inFile, in, '\n'); //get second line
+		while (in[0] == '#') getline(inFile, in); //get any further comments
+		//we should now have a line with two ints..
+		readTwoShorts(in, &width, &height);
+		getline(inFile, in, '\n'); //get the depth line
+		readOneChar(in, &depth);
+		//we have our x, y and z, so now we know the size of the matrix we must make
+		imageMatrix = new unsigned char *[height]; //make Y rows
+		for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];
+		if (DBGPGM) cout << "Image matrix: \n";
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				inFile >> in;
+				imageMatrix[i][j] = (unsigned char) atoi(in.c_str());
+				if (DBGPGM) cout << (int) imageMatrix[i][j] << ' ';
+			}
+			if (DBGPGM) cout << "\n";
+		}
+		inFile.close();
+	}
 }
 
 /*	helper method for pgm constructor
@@ -51,24 +55,32 @@ void pgm::pgmFromASCII(const char * filename) {
 void pgm::pgmFromBinary(const char* filename) {
 	FILE* inFile;
 	inFile = fopen(filename, "rb");
-	// read header infromation
-	fread(&width, sizeof(width), 1, inFile);
-	fread(&height, sizeof(height), 1, inFile);
-	fread(&depth, sizeof(depth), 1, inFile);
-	//we have our x, y and z, so now we know the size of the matrix we must make
-	imageMatrix = new unsigned char *[height]; //make Y rows
-	for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];	
-	// read image data
-	unsigned char currentChar;
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			if (!feof(inFile)) {
-				fread(&currentChar, sizeof(currentChar), 1, inFile);
-				imageMatrix[i][j] = currentChar;
+	if (inFile == NULL) {
+		height = width = 0;
+		depth = (unsigned char) 0;
+		imageMatrix = NULL;
+		cerr << "cannot open file for reading\n";
+	}
+	else {
+		// read header infromation
+		fread(&width, sizeof(width), 1, inFile);
+		fread(&height, sizeof(height), 1, inFile);
+		fread(&depth, sizeof(depth), 1, inFile);
+		//we have our x, y and z, so now we know the size of the matrix we must make
+		imageMatrix = new unsigned char *[height]; //make Y rows
+		for (int i = 0; i < height; i++) imageMatrix[i] = new unsigned char[width];	
+		// read image data
+		unsigned char currentChar;
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if (!feof(inFile)) {
+					fread(&currentChar, sizeof(currentChar), 1, inFile);
+					imageMatrix[i][j] = currentChar;
+				}
 			}
 		}
+		fclose(inFile);
 	}
-	fclose(inFile);	
 }
 
 /* pgm constructor
