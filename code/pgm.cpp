@@ -2,6 +2,7 @@
 	Implementation for the pgm class
 	Created by Michael Crouse, 2/16/14
 */
+#include "half.hpp"
 #include "pgm.h"
 #include <stdlib.h>
 #include <iostream>
@@ -12,6 +13,7 @@
 #include <Eigen/SVD>
 
 using namespace std;
+using half_float::half;
 
 /*	helper method for pgm constructor
 	creates a pgm object from an ASCII (normal) pgm file
@@ -88,6 +90,7 @@ void pgm::pgmFromCompressed(const char* filename) {
 	}
 	else {
 		unsigned short k;
+		half tempHalf;
 		// read header infromation
 		fread(&width, sizeof(width), 1, inFile);
 		fread(&height, sizeof(height), 1, inFile);
@@ -103,14 +106,16 @@ void pgm::pgmFromCompressed(const char* filename) {
 		//read in U first..		
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < k; j++) {
-				fread(&(U(i,j)), sizeof(double), 1, inFile);
+				fread(&tempHalf, sizeof(half), 1, inFile);
+				U(i, j) = tempHalf;
 			}
 		}
 		//then S..
 		for (int i = 0; i < k; i++) {
 			for (int j = 0; j < k; j++) {
 				if (i==j) {
-					fread(&(S(i, j)), sizeof(double), 1, inFile);
+					fread(&tempHalf, sizeof(half), 1, inFile);
+					S(i, j) = tempHalf;
 				}
 				else {
 					S(i, j) = 0;
@@ -120,7 +125,8 @@ void pgm::pgmFromCompressed(const char* filename) {
 		//finally V
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < k; j++) {
-				fread(&(V(i,j)), sizeof(double), 1, inFile);
+				fread(&tempHalf, sizeof(half), 1, inFile);
+				V(i, j) = tempHalf;
 			}
 		}
 		M = U * S * V.transpose();
@@ -135,6 +141,7 @@ void pgm::pgmFromCompressed(const char* filename) {
 
 int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	Eigen::MatrixXd M(height, width);
+	half tempHalf;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			M(i, j) = imageMatrix[i][j];
@@ -154,17 +161,20 @@ int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	//now we store the shortened U.
 	for (int i = 0; i < height; i++) { //first k rows of U
 		for (int j = 0; j < k; j++) {
-			fwrite(&(U(i, j)), sizeof(double), 1, outFile);
+			tempHalf = (half) U(i, j);
+			fwrite(&tempHalf, sizeof(half), 1, outFile);
 		}
 	}
 	//next we store S
 	for (int i = 0; i < k; i++) { //first k S-values
-		fwrite(&(S(i)), sizeof(double), 1, outFile);
+			tempHalf = (half) S(i);
+			fwrite(&tempHalf, sizeof(half), 1, outFile);
 	}
 	//finally shortened V
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < k; j++) { //first k columns of V.transpose(), first k rows of V
-			fwrite(&(V(i, j)), sizeof(double), 1, outFile);
+			tempHalf = (half) V(i, j);
+			fwrite(&tempHalf, sizeof(half), 1, outFile);
 		}
 	}
 	fclose(outFile);
