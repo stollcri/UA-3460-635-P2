@@ -1,15 +1,23 @@
-CC = c++
-CFLAGS = -I ./eigen/
+CC = cc
+CPP = c++
+CPPFLAGS = -I ./eigen/
 
 default: svd
 
 all: clean test
 
-svd:
-	${CC} ${CFLAGS} -o svd svd.cpp pgm.cpp
+sv:
+	${CPP} ${CPPFLAGS} -o svd svd.cpp pgm.cpp
+
+pcpp:
+	${CPP} ${CPPFLAGS} -o pca pca.cpp
+	./pca
+
+pcc:
+	${CC} -o pca-c pca.c
 
 test:
-	${CC} ${CFLAGS} -o svd svd.cpp pgm.cpp
+	${CPP} ${CPPFLAGS} -o svd svd.cpp pgm.cpp
 
 	./svd 1 testimg/IMG_2208-cut.pgm	# => image_b.pgm
 	./svd 2 image_b.pgm		# => image2.pgm

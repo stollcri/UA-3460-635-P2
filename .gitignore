@@ -14,3 +14,5 @@
 
 # Executables
 code/svd
+code/pca
+code/pca-c
