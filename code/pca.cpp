@@ -68,7 +68,7 @@ void runPCA()
 	/*===================
 	 * pgm::pgmFromASCII
 	 */
-	ifstream inFile("testimg/IMG_2208.pgm");
+	ifstream inFile("testimg/face.pgm");
 	string in;
 	if (!inFile.is_open()) {
 		cerr << "cannot open file for reading\n";
@@ -102,9 +102,12 @@ void runPCA()
 	/*==============
 	 * Matrix setup
 	 */
-	int total = 0.0;
-	int mean = 0.0;
+	int total = 0;
+	int mean = 0;
 	Eigen::MatrixXd M(height, width);
+	
+	// data points are columns, and dimensions are rows
+	/*
 	for (int i = 0; i < height; i++) {
 		total = 0;
 		for (int j = 0; j < width; j++) {
@@ -117,6 +120,23 @@ void runPCA()
 			M(i, j) = (int)imageMatrix[i][j] - mean;
 		}
 	}
+	*/
+	
+	// data points are rows, and dimensions are columns
+	for (int j = 0; j < width; j++) {
+		
+		total = 0;
+		for (int i = 0; i < height; i++) {
+			total += (int)imageMatrix[i][j];
+		}
+		mean = total / height;
+		
+		for (int i = 0; i < height; i++) {
+			//M(i, j) = imageMatrix[i][j];
+			M(i, j) = (int)imageMatrix[i][j] - mean;
+		}
+	}
+
 	//cout << M << endl << endl;
 
 	/*========
@@ -154,35 +174,97 @@ void runPCA()
 	 * =================
 	 * EXPERIMENTAL CODE
 	 */
-	Eigen::JacobiSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+	//Eigen::JacobiSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+	Eigen::MatrixXd Mcov = (1/(double)width) * (M * M.transpose());
+	Eigen::JacobiSVD<Eigen::MatrixXd> svd(Mcov, Eigen::ComputeFullU | Eigen::ComputeFullV);
+
 	Eigen::MatrixXd U = svd.matrixU();
 	Eigen::MatrixXd S = svd.singularValues();
 	Eigen::MatrixXd V = svd.matrixV();
 	Eigen::MatrixXd Ut = U.transpose();
 	Eigen::MatrixXd Vt = V.transpose();
 
-	FILE* outFile;
-	outFile = fopen("image_pca.pgm", "w");
-	fprintf(outFile, "P2\n");
-	fprintf(outFile, "# Created by Crouse and Stoll\n");
-	fprintf(outFile, "%d %d\n", width, height);
-	fprintf(outFile, "%d\n", depth);
+	Eigen::MatrixXd Un(height, width);
+	for (int j = 0; j < width; j++) {
+		for (int i = 0; i < height; i++) {
+			if (i==j) {
+				Un(i, j) = 1;
+			} else {
+				Un(i, j) = 0;
+			}
+		}
+	}
+	Eigen::MatrixXd Unt = Un.transpose();
 
-	int k=8;//S.size();
-	int currentVal;
+	FILE* outFileMean;
+	outFileMean = fopen("image_pca_mean.pgm", "w");
+	fprintf(outFileMean, "P2\n");
+	fprintf(outFileMean, "# Created by Crouse and Stoll\n");
+	fprintf(outFileMean, "%d %d\n", width, height);
+	fprintf(outFileMean, "%d\n", depth);
+
+	FILE* outFileKa;
+	outFileKa = fopen("image_pca_ka.pgm", "w");
+	fprintf(outFileKa, "P2\n");
+	fprintf(outFileKa, "# Created by Crouse and Stoll\n");
+	fprintf(outFileKa, "%d %d\n", width, height);
+	fprintf(outFileKa, "%d\n", depth);
+
+	FILE* outFileKb;
+	outFileKb = fopen("image_pca_kb.pgm", "w");
+	fprintf(outFileKb, "P2\n");
+	fprintf(outFileKb, "# Created by Crouse and Stoll\n");
+	fprintf(outFileKb, "%d %d\n", width, height);
+	fprintf(outFileKb, "%d\n", depth);
+
+	int k=24;//S.size();
+	int thisKa=0, thisKb=0;
+	int currentValMean, currentValA, currentValB;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
-			currentVal = 0;
+			currentValMean = 0;
+			currentValA = 0;
+			currentValB = 0;
+
+			// principal components?
+			currentValA += U(i, thisKa) * S(thisKa) * Vt(thisKa, j);
+			currentValA += 127;
+
+			currentValB += U(i, thisKb) * S(thisKb) * Vt(thisKb, j);
+			currentValB += U(i, thisKb+1) * S(thisKb+1) * Vt(thisKb+1, j);
+			currentValB += U(i, thisKb+2) * S(thisKb+2) * Vt(thisKb+2, j);
+			currentValB += U(i, thisKb+3) * S(thisKb+3) * Vt(thisKb+3, j);
+			currentValB += U(i, thisKb+4) * S(thisKb+4) * Vt(thisKb+4, j);
+			currentValB += U(i, thisKb+5) * S(thisKb+5) * Vt(thisKb+5, j);
+			currentValB += U(i, thisKb+6) * S(thisKb+6) * Vt(thisKb+6, j);
+			currentValB += U(i, thisKb+7) * S(thisKb+7) * Vt(thisKb+7, j);
+			currentValB += 127;
+
 			for (int currK = 0; currK < k; ++currK){
-				//currentVal += U(i, currK) * S(currK) * Vt(currK, j);
-				//currentVal += V(currK, j) * S(currK) * S(currK) * Vt(currK, j);
-				currentVal += U(currK, i) * S(currK) * S(currK) * Ut(currK, i);
+				// average scene?
+				//currentValMean += U(i, currK) * S(currK) * Vt(currK, j);
+
+				currentValMean += V(currK, j) * S(currK) * S(currK) * Vt(currK, j);
+				//currentValMean += U(currK, i) * S(currK) * S(currK) * Ut(currK, i);
+				//currentValMean += ((1/(double)height) * U(currK, i) * S(currK) * S(currK) * Ut(currK, i));
+				//currentValMean += Unt(currK, i) * S(currK) * S(currK) * Ut(currK, i);
 			}
-			fprintf(outFile, "%d ", currentVal);
+
+			fprintf(outFileMean, "%d ", currentValMean);
+			fprintf(outFileKa, "%d ", currentValA);
+			fprintf(outFileKb, "%d ", currentValB);
 		}
-		fprintf(outFile, "\n");
+
+		fprintf(outFileMean, "\n");
+		fprintf(outFileKa, "\n");
+		fprintf(outFileKb, "\n");
 	}
-	fclose(outFile);
+
+	fclose(outFileMean);
+	fclose(outFileKa);
+	fclose(outFileKb);
 
 	/*
 	 * END EXPERIMENTAL CODE
