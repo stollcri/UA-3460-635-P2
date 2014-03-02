@@ -241,13 +241,8 @@ pgm::pgm(const char * headerFile, const char * svdFile) {
 		//now S
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				if (i==j) {
-					svd >> tempDouble;
-					S(i, j) = tempDouble;
-				}
-				else {
-					S(i, j) = 0;
-				}
+				svd >> tempDouble;
+				S(i, j) = tempDouble;
 			}
 		}
 		//finally V
@@ -359,10 +354,17 @@ int pgm::generateSVD(const char *filename) {
 	}
 	
 	// write the S matrix
-	for (int i = 0; i < S.size(); i++) {
-		fprintf(outFile, "%f ", S(i));
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			if (i==j) {
+				fprintf(outFile, "%f ", S(i));
+			}
+			else {
+				fprintf(outFile, "0 ");
+			}
+		}
+		fprintf(outFile, "\n");
 	}
-	fprintf(outFile, "\n");
 
 	// write the V matrix
 	for (int i = 0; i < width; i++) {
