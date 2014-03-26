@@ -163,7 +163,7 @@ int pgm:: toCompressedBinary(const char * filename, unsigned short k) {
 	fwrite(&depth, sizeof(depth), 1, outFile);
 	fwrite(&k, sizeof(k), 1, outFile);
 	//now we store the shortened U.
-	for (int i = 0; i < height; i++) { //first k rows of U
+	for (int i = 0; i < height; i++) { //first k cols of U
 		for (int j = 0; j < k; j++) {
 			tempHalf = (half) U(i, j);
 			fwrite(&tempHalf, sizeof(half), 1, outFile);
