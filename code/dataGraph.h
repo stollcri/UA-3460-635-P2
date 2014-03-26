@@ -34,5 +34,5 @@ class dataGraph {
 		string * variableNames;
 		int width;
 		int height;
-}
+};
 #endif

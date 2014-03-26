@@ -29,6 +29,7 @@ clean:
 	-rm *.o
 
 	-rm svd
+	-rm pca
 
 	-rm image_b.pgm
 	-rm image2.pgm
