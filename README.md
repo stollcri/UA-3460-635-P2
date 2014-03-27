@@ -127,21 +127,21 @@
 
 ## PCA with Weka
 
-|          | V1      | V2      |   |                         | V1      | V1      |
-| -------- | ------- | ------- | - | ----------------------- | ------- | ------- |
-| dobYear  |  0.3871 |  0.144  |   | gender=0.0              | -0.4351 | -0.2022 |
-| height   |  0.3255 | -0.0718 |   | gender=M                |  0.2065 | -0.2858 |
-| race=0.0 | -0.4333 | -0.2112 |   | gender=F                |  0.045  |  0.411  |
-| race=W   |  0.3543 |  0.3232 |   | gender=U                |  0.001  | -0.0101 |
-| race=U   | -0.0002 | -0.0166 |   | medicalCount            |  0.0608 |  0.015  |
-| race=B   |  0.0139 | -0.1981 |   | offenseCount            |  0.1162 |  0.0374 |
-| race=A   | -0.0069 | -0.007  |   | warrantCount            |  0.2222 | -0.4074 |
-| race=K   |  0.0004 | -0.0244 |   | lastWarrantBail         |  0.1677 | -0.324  |
-| race=M   | -0.0064 | -0.0028 |   | involveCountVictim      |  0.0433 | -0.0072 |
-| race=L   | -0.0001 | -0.02   |   | involveCountSuspect     |  0.194  | -0.2922 |
-| race=I   | -0.0004 | -0.0066 |   | involveCountArrestee    |  0.2391 | -0.3668 |
-| race=P   | -0.003  | -0.0095 |   | involveCountComplainant |  0.0725 |  0.0149 |
-| race=N   | -0.002  | -0.0056 |   |                         |         |         |
+|          | V1      | V2      |                         | V1      | V1      |
+| -------- | ------- | ------- | ----------------------- | ------- | ------- |
+| dobYear  |  0.3871 |  0.144  | gender=0.0              | -0.4351 | -0.2022 |
+| height   |  0.3255 | -0.0718 | gender=M                |  0.2065 | -0.2858 |
+| race=0.0 | -0.4333 | -0.2112 | gender=F                |  0.045  |  0.411  |
+| race=W   |  0.3543 |  0.3232 | gender=U                |  0.001  | -0.0101 |
+| race=U   | -0.0002 | -0.0166 | medicalCount            |  0.0608 |  0.015  |
+| race=B   |  0.0139 | -0.1981 | offenseCount            |  0.1162 |  0.0374 |
+| race=A   | -0.0069 | -0.007  | warrantCount            |  0.2222 | -0.4074 |
+| race=K   |  0.0004 | -0.0244 | lastWarrantBail         |  0.1677 | -0.324  |
+| race=M   | -0.0064 | -0.0028 | involveCountVictim      |  0.0433 | -0.0072 |
+| race=L   | -0.0001 | -0.02   | involveCountSuspect     |  0.194  | -0.2922 |
+| race=I   | -0.0004 | -0.0066 | involveCountArrestee    |  0.2391 | -0.3668 |
+| race=P   | -0.003  | -0.0095 | involveCountComplainant |  0.0725 |  0.0149 |
+| race=N   | -0.002  | -0.0056 |                         |         |         |
 
 
 
