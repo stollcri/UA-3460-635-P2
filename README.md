@@ -150,7 +150,9 @@
   - The ratio is about .039
   - The B/W population ratio is about .065
 - In the first principal component `gender=M` is `0.2065` whereas `gender=F` is `0.045`
-
+- Notes
+  - `dobYear` and `height` are over represented by 0 values (unknown)
+  - `race=0.0` means race is not recorded, often the victim
 
 
 ## PCA with Weka
