@@ -56,16 +56,24 @@ dataGraph::dataGraph(const char * filename, int  fileType) {
 }
 
 void dataGraph::runPCA(const char* filename, int k, double sigCutoff) {
-	//first, subtract the mean from the dataset
-	double currentTotal, mean;
+	//first, we need to standardize the dataset 
+	double currentTotal, mean, deviation;
 	for (int j = 0; j < width; j++) { //column j so we can use (i, j) as accustomed
 		currentTotal = 0;
 		for (int i = 0; i < height; i++) { //row i
 			currentTotal += dataTable(i, j); 
 		}
 		mean = currentTotal/height;
+		currentTotal=0;
+		//now work out the standard deviation
 		for (int i = 0; i < height; i++) {
-			dataTable(i, j) -= mean;
+			deviation = (dataTable(i,j) - mean);
+			currentTotal += deviation * deviation;
+		}
+		deviation = sqrt(currentTotal/height);
+		//finally, standardize the data by subtracting the mean, then dividing by deviation
+		for (int i = 0; i < height; i++) {
+			dataTable(i, j) = (dataTable(i, j) - mean) / deviation;
 		}
 	}
 	cout << dataTable << endl;
