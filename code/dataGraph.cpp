@@ -35,7 +35,6 @@ dataGraph::dataGraph(const char * filename, int  fileType) {
 			position = newPosition+1;
 		}
 		while(getline(inFile, inLine, '\n')) {
-			cout << "height " << height << ' ';
 			//todo: come up with a more efficient way than recreating the matrix to add lines from the file
 			//THIS IS A HUGE HACK
 			tempMatrix.resize(height+1, width);
@@ -47,18 +46,29 @@ dataGraph::dataGraph(const char * filename, int  fileType) {
 			position = 0;
 			for (int i = 0; i < width; i++) {
 				newPosition = inLine.find(',', position+1);
-				cout << inLine.substr(position, newPosition-position) << ' ';
 				tempMatrix(height, i) = atof(inLine.substr(position, newPosition-position).c_str());
 				position = newPosition+1;
 			}
-			cout << endl;
 			dataTable = tempMatrix;
 			height++;
 		}
-		cout << dataTable << endl;
 	}
 }
 
 void dataGraph::runPCA(const char* filename, int k, double sigCutoff) {
-	
+	//first, subtract the mean from the dataset
+	double currentTotal, mean;
+	for (int j = 0; j < width; j++) { //column j so we can use (i, j) as accustomed
+		currentTotal = 0;
+		for (int i = 0; i < height; i++) { //row i
+			currentTotal += dataTable(i, j); 
+		}
+		mean = currentTotal/height;
+		for (int i = 0; i < height; i++) {
+			dataTable(i, j) -= mean;
+		}
+	}
+	cout << dataTable << endl;
+	JacobiSVD<Eigen::MatrixXd> svd(dataTable, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	cout << svd.matrixV() << endl << svd.singularValues() << endl;
 }
