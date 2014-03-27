@@ -146,6 +146,14 @@
 
 
 ## PCA with Weka
+- In the first principal component `race=B` is `0.0139` whereas `race=W` is `0.3543`
+  - The ratio is about .039
+  - The B/W population ratio is about .065
+- In the first principal component `gender=M` is `0.2065` whereas `gender=F` is `0.045`
+
+
+
+## PCA with Weka
 ### PC 1 vs Race
 ![PC v Race](./img/weka-pca-a.png)
 
