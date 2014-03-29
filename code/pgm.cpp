@@ -115,6 +115,7 @@ void pgm::pgmFromCompressed(const char* filename) {
 			for (int j = 0; j < k; j++) {
 				if (i==j) {
 					fread(&(S(i,j)), sizeof(double), 1, inFile);
+					//S(i, j) *= 1 + (1/sqrt(k));
 				}
 				else {
 					S(i, j) = 0;
