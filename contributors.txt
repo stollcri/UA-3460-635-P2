@@ -1,0 +1,7 @@
+Contributions:
+Image compression via SVD: Christopher Stoll and Michael Crouse
+PCA Experimentation in C, python: Christopher Stoll
+PCA Experimentation in C++: Michael Crouse
+Choice of dataset: Christopher Stoll
+Report: Michael Crouse
+Presentation: Christopher Stoll

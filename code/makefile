@@ -6,7 +6,10 @@ default: svd
 
 all: clean test
 
-sv:
+pcatest:
+	${CPP} ${CPPFLAGS} -o pcatest testPCA.cpp dataGraph.cpp
+
+svd:
 	${CPP} ${CPPFLAGS} -o svd svd.cpp pgm.cpp
 
 pcpp:
@@ -30,6 +33,7 @@ clean:
 
 	-rm svd
 	-rm pca
+	-rm pcatest
 
 	-rm image_b.pgm
 	-rm image2.pgm

@@ -56,8 +56,11 @@ dataGraph::dataGraph(const char * filename, int  fileType) {
 }
 
 void dataGraph::runPCA(const char* filename, int k, double sigCutoff) {
-	//first, we need to standardize the dataset 
+	//first, we need to standardize and centralize the dataset 
+	MatrixXd centered(height, width), standardized(height, width);
+	MatrixXd S, V;
 	double currentTotal, mean, deviation;
+	int variables;
 	for (int j = 0; j < width; j++) { //column j so we can use (i, j) as accustomed
 		currentTotal = 0;
 		for (int i = 0; i < height; i++) { //row i
@@ -72,11 +75,70 @@ void dataGraph::runPCA(const char* filename, int k, double sigCutoff) {
 		}
 		deviation = sqrt(currentTotal/height);
 		//finally, standardize the data by subtracting the mean, then dividing by deviation
+		//or just centralize it by subtracting the mean 
 		for (int i = 0; i < height; i++) {
-			dataTable(i, j) = (dataTable(i, j) - mean) / deviation;
+			centered(i, j) = dataTable(i,j) - mean;
+			standardized(i, j) = (dataTable(i, j) - mean) / deviation;
 		}
 	}
-	cout << dataTable << endl;
-	JacobiSVD<Eigen::MatrixXd> svd(dataTable, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	cout << "Standardized eigenvectors and eigenvalues:\n";
+	JacobiSVD<Eigen::MatrixXd> svd(standardized, Eigen::ComputeFullU | Eigen::ComputeFullV);
 	cout << svd.matrixV() << endl << svd.singularValues() << endl;
+	cout << "Analysis for first " << k << " components with cutoff " << sigCutoff << endl;
+	currentTotal = 0;
+	V = svd.matrixV();
+	S = svd.singularValues();
+	for (int i = 0; i < S.size(); i++) { //get the mean of the eigenvalues
+		currentTotal += S(i) * S(i);
+	}
+	for (int j = 0; j < k; j++) {
+		variables = 0;
+		cout << "For eigenvalue " << k << " which stores " << ((S(j) * S(j))/currentTotal) * 100 << "% of the variance: ";
+		for (int i = 0; i < width; i++) {
+			if (V(i,j) >= sigCutoff) {
+				cout << "high " << variableNames[i] << ' ';
+				variables++;
+			}
+			if (V(i,j) <= (sigCutoff * -1)) {
+				cout << "low " << variableNames[i] << ' ';
+				variables++;
+			}
+		}
+		if (variables > 0) {
+			cout << "correspond most strongly to the variance.\n";
+		}
+		else {
+			cout << "There appears to be little pattern among the data.\n";
+		}
+	}
+		cout << "Centered eigenvectors and eigenvalues:\n";
+	JacobiSVD<Eigen::MatrixXd> svd2(centered, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	cout << svd.matrixV() << endl << svd.singularValues() << endl;
+	cout << "Analysis for first " << k << " components with cutoff " << sigCutoff << endl;
+	currentTotal = 0;
+	V = svd2.matrixV();
+	S = svd2.singularValues();
+	for (int i = 0; i < S.size(); i++) { //get the mean of the eigenvalues
+		currentTotal += S(i) * S(i);
+	}
+	for (int j = 0; j < k; j++) {
+		variables = 0;
+		cout << "For eigenvalue " << k << " which stores " << ((S(j) * S(j))/currentTotal) * 100 << "% of the variance: ";
+		for (int i = 0; i < width; i++) {
+			if (V(i,j) >= sigCutoff) {
+				cout << "high " << variableNames[i] << ' ';
+				variables++;
+			}
+			if (V(i,j) <= (sigCutoff * -1)) {
+				cout << "low " << variableNames[i] << ' ';
+				variables++;
+			}
+		}
+		if (variables > 0) {
+			cout << "correspond most strongly to the variance.\n";
+		}
+		else {
+			cout << "There appears to be little pattern among the data.\n";
+		}
+	}
 }
