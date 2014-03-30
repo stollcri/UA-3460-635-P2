@@ -5,7 +5,6 @@
 
 
 ## Singular Value Decomposition
-
 ![SVD](./img/SVD.png)
 
 
@@ -153,6 +152,7 @@
 - Notes
   - `dobYear` and `height` are over represented by 0 values (unknown)
   - `race=0.0` means race is not recorded, often the victim
+
 
 
 ## PCA with Weka
