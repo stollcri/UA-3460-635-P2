@@ -4,8 +4,34 @@
 
 
 
-## Singular Value Decomposition
+## Singular Value Decomposition (SVD)
 ![SVD](./img/SVD.png)
+
+
+
+## Singular Value Decomposition (SVD)
+- Implementation
+  - C++ with Eigen library
+  - Python with Numpy
+
+
+
+## SVD for Image Compression
+![SVD](./img/SVD2.png)
+
+
+
+## SVD for Image Compression -- Issues
+- PGM Pixel -- byte
+- SVD Eigenvalues -- 8 byte double
+- SVD Eigenvector values -- 2 byte float
+
+
+
+## SVD for Image Compression -- Issues
+### "Compressed" image LARGER than uncompressed
+![SVD](./img/image_k.png)
+![SVD](./img/image2.png)
 
 
 
